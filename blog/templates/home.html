@@ -9,6 +9,16 @@
             </div>
             <h2><a class="article-title" href="{{ url_for('post', post_id=post.id) }}">{{ post.title }}</a></h2>
             <p class="article-content">{{ post.content }}</p>
+            {% if current_user.is_authenticated %}
+              {% if current_user.has_liked(post) %}
+                <a href="{{ url_for('like_action', post_id=post.id, action='unlike') }}">Unlike</a>
+              {% else %}
+                <a href="{{ url_for('like_action', post_id=post.id, action='like') }}">Like</a>
+              {% endif %}
+            {{ post.liked_posts.count() }} likes
+          {% else %}
+            {{ post.likes.liked_posts.count() }} likes
+          {% endif %}
           </div>
         </article>
     {% endfor %}

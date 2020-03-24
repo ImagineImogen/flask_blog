@@ -1,4 +1,4 @@
-from blog.models import User, Post
+from blog.models import User, Post, likes
 from flask import  request, render_template, url_for, flash, redirect, abort
 from blog.forms import Registration, Login, PostForm
 from blog import app, db, bcrypt
@@ -8,15 +8,8 @@ from flask_login import login_user, current_user, logout_user, login_required
 @app.route('/')
 @app.route('/index')
 def index():
-    #return "Hello, World!"
     posts = Post.query.all()
     return render_template ('home.html', posts=posts)
-
-
-#@app.route('/register')
-#def register_get():
-    #print(request.args)
-    #return "Register"
 
 
 @app.route("/about")
@@ -110,3 +103,16 @@ def delete_post(post_id):
     db.session.commit()
     flash('Your post was deleted', 'success')
     return redirect(url_for('index'))
+
+
+@app.route('/like/<int:post_id>/<action>')
+@login_required
+def like_action(post_id, action):
+    post = Post.query.filter_by(id=post_id).first_or_404()
+    if action == 'like':
+        current_user.like(post)
+        db.session.commit()
+    if action == 'unlike':
+        current_user.unlike(post)
+        db.session.commit()
+    return redirect(request.referrer)
