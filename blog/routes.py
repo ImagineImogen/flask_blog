@@ -12,9 +12,16 @@ def index():
     return render_template ('home.html', posts=posts)
 
 
+@app.route('/post_list')
+def post_list():
+    all_posts = Post.query.all()
+    return render_template('post_list.html', posts=all_posts)
+
+
 @app.route("/about")
 def about():
     return render_template('about.html', title='About')
+
 
 @app.route("/register", methods = ['GET', 'POST'])
 def register():
@@ -30,7 +37,8 @@ def register():
         return redirect (url_for('index'))
     return render_template('register.html', title = 'Register', form=form)
 
-@app.route("/login", methods = ['GET', 'POST'])
+
+@app.route("/login", methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
@@ -45,15 +53,18 @@ def login():
            flash('Login unsuccessful', 'danger')
     return render_template('login.html', title = 'Login', form=form)
 
+
 @app.route("/logout")
 def logout():
     logout_user()
     return redirect(url_for('index'))
 
+
 @app.route("/account")
 @login_required
 def account():
     return render_template('account.html', title='Account')
+
 
 @app.route("/post/new", methods = ['GET', 'POST'])
 @login_required
@@ -72,6 +83,7 @@ def new_post():
 def post(post_id):
     post = Post.query.get_or_404(post_id)
     return render_template('post.html', title = post.title, post=post)
+
 
 @app.route("/post/<int:post_id>/update", methods=['GET', 'POST'])
 @login_required

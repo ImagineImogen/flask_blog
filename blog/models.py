@@ -4,13 +4,15 @@ from flask_login import UserMixin
 
 
 @login_manager.user_loader
-def load_user (user_id):
+def load_user(user_id):
     return User.query.get(int(user_id))
+
 
 likes = db.Table('likes',
     db.Column('user_liked', db.Integer, db.ForeignKey('user.id')),
     db.Column('post_liked', db.Integer, db.ForeignKey('post.id'))
                  )
+
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -21,15 +23,12 @@ class User(db.Model, UserMixin):
     posts = db.relationship('Post', backref='author',lazy=True)
     liker = db.relationship('Post', secondary=likes, backref=db.backref('liked_posts', lazy='dynamic'))
 
-    def has_liked(self, post): # returns True is the user has liked some post
-        #return self.liker.filter(likes.c.user_liked == self.id, likes.c.post_liked == post.id).count() > 0
+    def has_liked(self, post):  # returns True is the user has liked some post
         return db.session.query(likes).filter(likes.c.user_liked == self.id, likes.c.post_liked == post.id).count() > 0
-
 
     def like(self, post):
         if not self.has_liked(post):
             self.liker.append(post)
-            #db.session.add(like)
 
     def unlike(self, post):
         if self.has_liked(post):
@@ -45,7 +44,6 @@ class Post(db.Model):
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-
 
     def ___repr__(self):
         return f"Post('{self.title}', '{self.date_posted}')"
